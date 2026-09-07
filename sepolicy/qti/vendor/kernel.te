@@ -1,1 +1,5 @@
 allow kernel vendor_file:file r_file_perms;
+# kdevtmpfs (running in the kernel context) writes /dev when creating device
+# nodes before ueventd relabels them; benign but noisy on GKI builds.
+allow kernel device:dir { write add_name remove_name };
+

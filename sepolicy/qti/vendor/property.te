@@ -19,6 +19,9 @@ vendor_internal_prop(vendor_oplus_se_prop)
 # Thermal
 vendor_internal_prop(vendor_thermal_engine_prop)
 
+# QMS
+get_prop(vendor_qms, vendor_ssr_prop)
+
 # Touch
 vendor_internal_prop(vendor_oplus_touch_prop)
 

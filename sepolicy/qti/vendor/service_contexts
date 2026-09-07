@@ -70,3 +70,4 @@ vendor.oplus.hardware.touch.IOplusTouch/default    u:object_r:hal_oplus_touch_ai
 
 # URCC
 vendor.oplus.hardware.urcc.IUrcc/default    u:object_r:hal_oplus_urcc_aidl_service:s0
+vendor.oplus.hardware.cryptoeng.ICryptoeng/default    u:object_r:hal_cryptoeng_service:s0

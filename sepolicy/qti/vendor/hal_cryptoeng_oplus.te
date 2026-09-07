@@ -1,0 +1,87 @@
+# vendor.oplus.hardware.cryptoeng@1.0-service (OPLUS_FEATURE_CRYPTOENG)
+# Policy derived from stock macanc vendor_sepolicy.cil
+
+type hal_cryptoeng_oplus, domain;
+binder_use(hal_cryptoeng_oplus)
+
+hal_server_domain(hal_cryptoeng_oplus, hal_cryptoeng)
+
+type hal_cryptoeng_oplus_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(hal_cryptoeng_oplus)
+
+binder_call(hal_cryptoeng_client, hal_cryptoeng_server)
+hal_attribute_service(hal_cryptoeng, hal_cryptoeng_service)
+add_hwservice(hal_cryptoeng_server, hal_cryptoeng_hwservice)
+
+allow hal_cryptoeng_client hal_cryptoeng_oplus:binder call;
+
+# Cryptoeng data directory (/data/vendor_de/<user>/cryptoeng)
+allow hal_cryptoeng_oplus cryptoeng_data_file:dir create_dir_perms;
+allow hal_cryptoeng_oplus cryptoeng_data_file:file create_file_perms;
+allow tee cryptoeng_data_file:dir rw_dir_perms;
+allow tee cryptoeng_data_file:file create_file_perms;
+
+# TEE access
+allow hal_cryptoeng_oplus tee_device:chr_file rw_file_perms;
+allow hal_cryptoeng_oplus ion_device:chr_file rw_file_perms;
+r_dir_file(hal_cryptoeng_oplus, firmware_file)
+allow hal_cryptoeng_oplus vendor_dmabuf_qseecom_heap_device:chr_file r_file_perms;
+allow hal_cryptoeng_oplus vendor_dmabuf_qseecom_ta_heap_device:chr_file r_file_perms;
+allow hal_cryptoeng_oplus vendor_qce_device:chr_file rw_file_perms;
+
+# Storage access (sdcard key operations)
+allow hal_cryptoeng_oplus storage_file:dir search;
+allow hal_cryptoeng_oplus storage_file:lnk_file rw_file_perms;
+allow hal_cryptoeng_oplus mnt_user_file:dir search;
+allow hal_cryptoeng_oplus mnt_user_file:lnk_file rw_file_perms;
+allow hal_cryptoeng_oplus mnt_vendor_file:dir search;
+allow hal_cryptoeng_oplus sdcardfs:dir { r_dir_perms remove_name rmdir };
+allow hal_cryptoeng_oplus sdcardfs:file rw_file_perms;
+
+# Persist / vendor data
+allow hal_cryptoeng_oplus vendor_persist_data_file:dir { write add_name search };
+allow hal_cryptoeng_oplus vendor_persist_data_file:file create_file_perms;
+allow hal_cryptoeng_oplus vendor_data_file:dir create_dir_perms;
+allow hal_cryptoeng_oplus vendor_data_file:file create_file_perms;
+allow hal_cryptoeng_oplus vendor_file:file lock;
+allow hal_cryptoeng_oplus oppo_reserve_file:dir rw_dir_perms;
+allow hal_cryptoeng_oplus oppo_reserve_file:file create_file_perms;
+
+# Devices / proc / sysfs
+allow hal_cryptoeng_oplus nfc_device:chr_file rw_file_perms;
+allow hal_cryptoeng_oplus block_device:dir search;
+allow hal_cryptoeng_oplus sysfs:file rw_file_perms;
+r_dir_file(hal_cryptoeng_oplus, vendor_proc_oppo_secure_common_file)
+allow hal_cryptoeng_oplus self:qipcrtr_socket { read write create getattr setopt };
+
+# Properties
+# Note: serialno_prop / boot_status_prop reads from stock are not allowed on
+# AOSP 16 (platform-restricted props with neverallow), so they are omitted.
+get_prop(hal_cryptoeng_oplus, vendor_tee_listener_prop)
+get_prop(hal_cryptoeng_oplus, vendor_nw_exported_system_prop)
+set_prop(hal_cryptoeng_oplus, powerctl_prop)
+allow hal_cryptoeng_oplus property_socket:sock_file write;
+
+# Binder interactions
+allow hal_cryptoeng_oplus servicemanager:binder call;
+allow hal_cryptoeng_oplus system_server:binder call;
+allow hal_cryptoeng_oplus hal_drm_widevine:binder call;
+allow hal_cryptoeng_oplus vendor_wfdhdcphalservice_qti:binder call;
+allow hal_cryptoeng_oplus vendor_hal_soter_qti:binder call;
+allow hal_cryptoeng_oplus vendor_hal_soter_hwservice:hwservice_manager find;
+allow hal_cryptoeng_oplus vendor_hal_qteeconnector_qti:binder call;
+allow hal_cryptoeng_oplus hal_graphics_composer_default:binder call;
+
+# Stock also lets cryptoeng look into its client domains
+allow hal_cryptoeng_oplus hal_cryptoeng_client:dir search;
+allow hal_cryptoeng_oplus hal_cryptoeng_client:file { read getattr open };
+
+# Location daemons use cryptoeng (e.g. edgnss)
+allow vendor_location hal_cryptoeng_hwservice:hwservice_manager find;
+allow vendor_location hal_cryptoeng_oplus:binder call;
+allow vendor_location_edgnss_daemon hal_cryptoeng_hwservice:hwservice_manager find;
+allow vendor_location_edgnss_daemon hal_cryptoeng_oplus:binder call;
+
+# cryptoeng probes running app processes and uses suspend stats
+allow hal_cryptoeng_oplus priv_app:dir { getattr search };
+allow hal_cryptoeng_oplus hal_system_suspend_service:service_manager find;

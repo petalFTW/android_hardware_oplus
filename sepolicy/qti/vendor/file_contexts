@@ -217,3 +217,5 @@
 /dev/ufcs_dev                         u:object_r:wlchg_device:s0
 /dev/wlchg                            u:object_r:wlchg_device:s0
 /dev/wls_dev                          u:object_r:wlchg_device:s0
+/(vendor|system/vendor|odm)/bin/hw/vendor\.oplus\.hardware\.cryptoeng@1\.0-service    u:object_r:hal_cryptoeng_oplus_exec:s0
+/data/vendor_de/[0-9]+/cryptoeng(/.*)?    u:object_r:cryptoeng_data_file:s0

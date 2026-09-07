@@ -10,6 +10,9 @@ type vendor_proc_camera, fs_type, proc_type;
 
 # Charging
 type vendor_proc_charger, fs_type, proc_type;
+
+# Cryptoeng
+type cryptoeng_data_file, file_type, data_file_type;
 type vendor_sysfs_charger, fs_type, sysfs_type;
 type vendor_proc_wireless, fs_type, proc_type;
 

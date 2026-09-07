@@ -8,6 +8,9 @@ type hal_oplus_charger_aidl_service, hal_service_type, service_manager_type;
 # Communication Center
 type hal_oplus_commcenter_aidl_service, hal_service_type, service_manager_type;
 
+# Cryptoeng
+type hal_cryptoeng_service, hal_service_type, service_manager_type;
+
 # CommonsDcs
 type hal_oplus_commondcs_aidl_service, hal_service_type, service_manager_type;
 
