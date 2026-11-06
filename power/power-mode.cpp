@@ -14,6 +14,18 @@
 using aidl::android::hardware::power::Mode;
 using aidl::vendor::oplus::hardware::touch::IOplusTouch;
 
+#ifndef LIBPERFMGR_EXT
+// from the qti power hal utils.c, we get linked into it
+extern "C" int perf_hint_enable(int hint_id, int duration);
+extern "C" void release_request(int lock_handle);
+
+namespace {
+// petal deep idle cpu cap, resources live in powerhint.xml
+constexpr int kPetalDeepIdleHint = 0x00001350;
+int sDeepIdleHandle = -1;
+}  // namespace
+#endif
+
 #ifdef LIBPERFMGR_EXT
 namespace aidl::google::hardware::power::impl::pixel {
 #else
@@ -25,6 +37,11 @@ bool isDeviceSpecificModeSupported(Mode type, bool* _aidl_return) {
         case Mode::DOUBLE_TAP_TO_WAKE:
             *_aidl_return = true;
             return true;
+#ifndef LIBPERFMGR_EXT
+        case Mode::DEVICE_IDLE:
+            *_aidl_return = true;
+            return true;
+#endif
         default:
             return false;
     }
@@ -60,6 +77,20 @@ bool setDeviceSpecificMode(Mode type, bool enabled) {
                                            std::to_string(contents), &aidl_return);
             return true;
         }
+#ifndef LIBPERFMGR_EXT
+        // framework only sends this while petal deep restricted idle is on and screen's off
+        case Mode::DEVICE_IDLE: {
+            if (enabled && sDeepIdleHandle <= 0) {
+                sDeepIdleHandle = perf_hint_enable(kPetalDeepIdleHint, 0);
+                LOG(INFO) << "petal deep idle cpu cap on, handle " << sDeepIdleHandle;
+            } else if (!enabled && sDeepIdleHandle > 0) {
+                release_request(sDeepIdleHandle);
+                sDeepIdleHandle = -1;
+                LOG(INFO) << "petal deep idle cpu cap off";
+            }
+            return true;
+        }
+#endif
         default:
             return false;
     }
